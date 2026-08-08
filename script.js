@@ -12,21 +12,15 @@
   const BOTTOM_CLOUDS =
     'https://flick-award-65707097.figma.site/_assets/v11/fb811f79bccceab1c4cdbb81b5524632cffc9c52.png';
 
-  const CARD_IMAGES = [
-    'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260525_160507_2ccbb4eb-1469-484f-af25-59168ad9a233.png&w=1280&q=85',
-    'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260525_160644_072a7f68-a101-4ded-a332-7d37707dbdd1.png&w=1280&q=85',
-    'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260525_160706_1c153d04-0dfb-4ac9-a4ef-e74f301c329c.png&w=1280&q=85',
-  ];
-
   const ARC_CARDS = [
-    { title: 'Hidden Realms', desc: 'Luminous sanctuaries unseen by wandering eyes', color: '#f3cdd6' },
-    { title: 'Wild Solitudes', desc: 'Dissolve into untamed horizons and deep calm', color: '#dcedc2' },
-    { title: 'Silent Havens', desc: 'Remote escapes far beyond ordinary reach', color: '#c3e3f4' },
-    { title: 'Bespoke Quests', desc: 'Journeys shaped around your vision and soul', color: '#f0e4c0' },
+    { title: 'Smilelab', desc: 'Luminous sanctuaries unseen by wandering eyes', color: '#f3cdd6' },
+    { title: 'Prompt', desc: 'Dissolve into untamed horizons and deep calm', color: '#dcedc2' },
+    { title: 'Legion VPN', desc: 'Remote escapes far beyond ordinary reach', color: '#c3e3f4' },
+    { title: 'Bespoke Architecture', desc: 'Journeys shaped around your vision and soul', color: '#f0e4c0' },
     { title: 'Vivid Drifts', desc: 'Surreal passages through breathtaking terrain', color: '#dcd2f2' },
-    { title: 'Mystic Crests', desc: 'Timeless ridgelines wrapped in cloud and myth', color: '#f3cdd6' },
-    { title: 'Deep Currents', desc: 'Glowing depths alive with uncharted wonder', color: '#c3e3f4' },
-    { title: 'Gilded Dusk', desc: 'Amber horizons that stretch past all reason', color: '#f0e4c0' },
+    { title: 'Cozy Paws', desc: 'Timeless ridgelines wrapped in cloud and myth', color: '#f3cdd6' },
+    { title: 'Bloom', desc: 'Glowing depths alive with uncharted wonder', color: '#c3e3f4' },
+    { title: 'Oyla', desc: 'Amber horizons that stretch past all reason', color: '#f0e4c0' },
     { title: 'Glassy Tides', desc: 'Calm waters holding skies of pure stillness', color: '#dcedc2' },
   ];
 
@@ -101,23 +95,57 @@
         '" alt="" loading="lazy" decoding="async" />';
     } else {
       el.innerHTML =
-        '<video class="wonder-hero-video-media" src="' +
+        '<video class="wonder-hero-video-media" muted loop playsinline preload="none" data-src="' +
         src +
-        '" muted loop playsinline autoplay preload="metadata"></video>';
+        '"></video>';
     }
     return el;
   }
 
-  document.querySelectorAll('.wonder-hero-videos').forEach(function (container) {
-    container.innerHTML = '';
+  function getActiveHeroContainer() {
+    if (window.matchMedia('(min-width: 1280px)').matches) {
+      return document.querySelector('.wonder-s1-desktop .wonder-hero-videos');
+    }
+    if (window.matchMedia('(min-width: 768px)').matches) {
+      return document.querySelector('.wonder-s1-tablet .wonder-hero-videos');
+    }
+    return document.querySelector('.wonder-s1-mobile .wonder-hero-videos');
+  }
+
+  // Only mount one visible hero set (was 6 videos across breakpoints)
+  function mountHeroVideos() {
+    document.querySelectorAll('.wonder-hero-videos').forEach(function (container) {
+      container.innerHTML = '';
+    });
+    const container = getActiveHeroContainer();
+    if (!container) return;
     HERO_MEDIA.forEach(function (src, i) {
       container.appendChild(buildHeroMediaCard(src, i));
     });
-  });
+    container.querySelectorAll('video.wonder-hero-video-media').forEach(function (video) {
+      if (!video.dataset.src) return;
+      video.src = video.dataset.src;
+      video.load();
+      const playPromise = video.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(function () {});
+      }
+    });
+  }
+
+  var heroResizeTimer = null;
+  window.addEventListener(
+    'resize',
+    function () {
+      clearTimeout(heroResizeTimer);
+      heroResizeTimer = setTimeout(mountHeroVideos, 200);
+    },
+    { passive: true }
+  );
 
   // 4th row moved to top; then original rows 1–3; plus new 5th row
   const LOOK_MEDIA = [
-    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a778a2b8880872019727774.mp4',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a779bc99a9c7792eac72e90.webp',
     'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a778a2b9994d35aa00d2bf1.mp4',
     'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a77885e88808720196bedb8.mp4',
     'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a77885e88808720196bece7.mp4',
@@ -125,13 +153,20 @@
     'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a77885e9a9c7792ea98715b.mp4',
     'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a77885e9994d35aa0085d26.webp',
     'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a77885e9a9c7792ea987135.mp4',
-    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a77954e88808720198ee865.mp4',
-    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a77954e03343f290fd2b4f8.mp4',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a7796f403343f290fd66140.mp4',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a7796f48880872019955c99.mp4',
   ];
 
-  const LOOK_NAME_ORDER = [6, 7, 0, 1, 2, 3, 4, 5, 8, 9];
+  const LOOK_NAME_ORDER = [6, 7, 0, 1, 2, 3, 4, 5];
+  const LOOK_NAMES = LOOK_MEDIA.map(function (_, i) {
+    if (i === LOOK_MEDIA.length - 2) return 'TEDx Kew website';
+    if (i === LOOK_MEDIA.length - 1) return 'Kaley Chu website';
+    const nameIdx = LOOK_NAME_ORDER[i];
+    return (ARC_CARDS[nameIdx] && ARC_CARDS[nameIdx].title) ||
+      'Template ' + String(i + 1).padStart(2, '0');
+  });
 
-  // Portfolio cards — 4 rows × 2 columns
+  // Portfolio cards — rows × 2 columns
   const portfolioGrid = document.getElementById('fbs-portfolio-grid');
   if (portfolioGrid) {
     for (let r = 0; r < LOOK_MEDIA.length; r += 2) {
@@ -142,10 +177,7 @@
         const i = r + col;
         const el = document.createElement('article');
         el.className = 'fbs-look-card';
-        const nameIdx = LOOK_NAME_ORDER[i];
-        const templateName =
-          (ARC_CARDS[nameIdx] && ARC_CARDS[nameIdx].title) ||
-          'Template ' + String(i + 1).padStart(2, '0');
+        const templateName = LOOK_NAMES[i];
         el.setAttribute('aria-label', templateName);
 
         const isImage = /\.webp($|\?)/i.test(src) || /\.(png|jpe?g|gif)($|\?)/i.test(src);
@@ -183,7 +215,13 @@
     });
   }
 
-  // Lightweight row reveal (CSS transform/opacity — once, GPU-friendly)
+  function pauseRowMedia(row) {
+    row.querySelectorAll('video.fbs-look-media').forEach(function (video) {
+      if (!video.paused) video.pause();
+    });
+  }
+
+  // Reveal + play only while in view (pause offscreen to free decode/CPU)
   function initRowReveals() {
     const rows = portfolioGrid ? portfolioGrid.querySelectorAll('.fbs-look-row') : [];
     if (!rows.length) return;
@@ -199,13 +237,15 @@
     const io = new IntersectionObserver(
       function (entries) {
         entries.forEach(function (entry) {
-          if (!entry.isIntersecting) return;
-          entry.target.classList.add('is-inview');
-          activateRowMedia(entry.target);
-          io.unobserve(entry.target);
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-inview');
+            activateRowMedia(entry.target);
+          } else {
+            pauseRowMedia(entry.target);
+          }
         });
       },
-      { root: null, rootMargin: '0px 0px -12% 0px', threshold: 0.18 }
+      { root: null, rootMargin: '120px 0px', threshold: 0.12 }
     );
 
     rows.forEach(function (row) {
@@ -215,7 +255,6 @@
 
   let scrollProgressTarget = 0;
   let scrollProgressValue = 0;
-  let isMobile = window.innerWidth < 768;
   let curtainsOpen = false;
   let uiVisible = false;
   let entranceDone = false;
@@ -247,29 +286,18 @@
     scrollProgressTarget = getScrollProgress(root);
   }
 
-  const mq = window.matchMedia('(max-width: 767px)');
-  mq.addEventListener('change', function (e) {
-    isMobile = e.matches;
-  });
+  var allowParallax = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-  root.addEventListener(
-    'mousemove',
-    function (e) {
-      rawX = (e.clientX / window.innerWidth - 0.5) * 2;
-      rawY = (e.clientY / window.innerHeight - 0.5) * 2;
-    },
-    { passive: true }
-  );
-
-  // Also listen on window so parallax works over sticky viewport
-  window.addEventListener(
-    'mousemove',
-    function (e) {
-      rawX = (e.clientX / window.innerWidth - 0.5) * 2;
-      rawY = (e.clientY / window.innerHeight - 0.5) * 2;
-    },
-    { passive: true }
-  );
+  if (allowParallax) {
+    window.addEventListener(
+      'mousemove',
+      function (e) {
+        rawX = (e.clientX / window.innerWidth - 0.5) * 2;
+        rawY = (e.clientY / window.innerHeight - 0.5) * 2;
+      },
+      { passive: true }
+    );
+  }
 
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
@@ -278,28 +306,58 @@
   setTimeout(function () {
     curtainsOpen = true;
     applyCurtainState();
-  }, 100);
+  }, 80);
 
   setTimeout(function () {
     uiVisible = true;
     applyScene1UIState();
-  }, 600);
+  }, 480);
+
+  // Mount hero videos after first paint / curtain open — avoids load fight
+  setTimeout(mountHeroVideos, 650);
 
   setTimeout(function () {
     entranceDone = true;
     curtainLeftEl.style.transition = 'none';
     curtainRightEl.style.transition = 'none';
-  }, 2200);
+  }, 1800);
 
   // Initial curtain closed state
   applyCurtainState();
 
-  function rafLoop() {
-    // Heavy damping — scroll feels slower / more cinematic
-    scrollProgressValue = lerp(scrollProgressValue, scrollProgressTarget, 0.055);
+  var lenis = null;
 
-    smoothX = lerp(smoothX, rawX, 0.07);
-    smoothY = lerp(smoothY, rawY, 0.07);
+  function initSmoothScroll() {
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion || typeof Lenis === 'undefined') return null;
+
+    lenis = new Lenis({
+      duration: 1.05,
+      easing: function (t) {
+        return Math.min(1, 1.001 - Math.pow(2, -10 * t));
+      },
+      smoothWheel: true,
+      touchMultiplier: 1.2,
+      wheelMultiplier: 1,
+    });
+
+    lenis.on('scroll', onScroll);
+    return lenis;
+  }
+
+  function rafLoop(time) {
+    if (lenis) lenis.raf(time);
+
+    // Snappier follow — less “stuck” lag behind the wheel
+    scrollProgressValue = lerp(scrollProgressValue, scrollProgressTarget, 0.14);
+
+    if (allowParallax) {
+      smoothX = lerp(smoothX, rawX, 0.12);
+      smoothY = lerp(smoothY, rawY, 0.12);
+    } else {
+      smoothX = 0;
+      smoothY = 0;
+    }
     const rx = -smoothX;
     const ry = -smoothY;
 
@@ -319,21 +377,11 @@
     cloudsEl.style.transformOrigin = '50% 100%';
     cloudsEl.style.opacity = String(opacities.cloudsOpacity);
 
-    // PORTAL
+    // PORTAL — origin matches CSS object-position aperture (52% / 38%)
     const portalScale = lerp(1, 7.5, ep);
-    // On mobile, shift portal right so the opening sits in the visual center
-    const portalOriginX = isMobile ? '50%' : '52%';
-    const portalOriginY = isMobile ? '40%' : '38%';
-    const portalBiasX = isMobile ? Math.round(window.innerWidth * 0.1) : 0;
     portalEl.style.transform =
-      'scale(' +
-      portalScale +
-      ') translate(' +
-      (rx * 7 + portalBiasX) +
-      'px, ' +
-      ry * 7 +
-      'px)';
-    portalEl.style.transformOrigin = portalOriginX + ' ' + portalOriginY;
+      'scale(' + portalScale + ') translate(' + rx * 7 + 'px, ' + ry * 7 + 'px)';
+    portalEl.style.transformOrigin = '52% 38%';
     portalEl.style.opacity = String(opacities.portalOpacity);
 
     // CURTAINS — CSS transition owns the entrance open; after entranceDone, rAF drives
@@ -377,70 +425,28 @@
     requestAnimationFrame(rafLoop);
   }
 
-  requestAnimationFrame(rafLoop);
-
-  // Smooth, slowed page scroll (Lenis) for an immersive feel
-  function initSmoothScroll() {
-    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduceMotion || typeof Lenis === 'undefined') return null;
-
-    var lenis = new Lenis({
-      duration: 1.75,
-      easing: function (t) {
-        return t === 1 ? 1 : 1 - Math.pow(2, -12 * t);
-      },
-      smoothWheel: true,
-      touchMultiplier: 1.1,
-      wheelMultiplier: 0.85,
-    });
-
-    lenis.on('scroll', function () {
-      onScroll();
-      if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.update();
-    });
-
-    function lenisRaf(time) {
-      lenis.raf(time);
-      requestAnimationFrame(lenisRaf);
-    }
-    requestAnimationFrame(lenisRaf);
-
-    return lenis;
-  }
-
-  // Section fade-in; rows use IntersectionObserver
-  function initHandoff() {
-    initSmoothScroll();
-    initRowReveals();
-
-    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
-      if (portfolioInner) portfolioInner.style.opacity = '1';
+  function initPortfolioReveal() {
+    if (!portfolioInner || !portfolioEl) return;
+    if (!('IntersectionObserver' in window)) {
+      portfolioInner.classList.add('is-inview');
       return;
     }
-    gsap.registerPlugin(ScrollTrigger);
-
-    if (portfolioInner) {
-      gsap.fromTo(
-        portfolioInner,
-        { opacity: 0, y: 40 },
-        {
-          opacity: 1,
-          y: 0,
-          ease: 'power2.out',
-          duration: 1.45,
-          scrollTrigger: {
-            trigger: portfolioEl,
-            start: 'top 88%',
-            toggleActions: 'play none none none',
-          },
-        }
-      );
-    }
+    var io = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          portfolioInner.classList.add('is-inview');
+          io.disconnect();
+        });
+      },
+      { rootMargin: '0px 0px -8% 0px', threshold: 0.08 }
+    );
+    io.observe(portfolioEl);
   }
 
-  if (document.readyState === 'complete') {
-    initHandoff();
-  } else {
-    window.addEventListener('load', initHandoff);
-  }
+  // Start immediately (defer script) — do not wait for full window load
+  initSmoothScroll();
+  initPortfolioReveal();
+  initRowReveals();
+  requestAnimationFrame(rafLoop);
 })();
