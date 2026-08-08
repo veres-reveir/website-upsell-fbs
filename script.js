@@ -47,21 +47,21 @@
     return Math.min(Math.max(scrolledPastTop / containerScrollHeight, 0), 1);
   }
 
-  // Upsell pacing (155vh) — tighter / faster
+  // Upsell pacing (280vh) — slower, more immersive
   function computeOpacities(p) {
-    const cloudsOpacity = p < 0.04 ? lerp(0.7, 1, p / 0.04) : 1;
-    const scene1Opacity = p < 0.18 ? 1 : clamp(1 - (p - 0.18) / 0.14, 0, 1);
-    const portalOpacity = p < 0.35 ? 1 : clamp(1 - (p - 0.35) / 0.2, 0, 1);
-    const scene2In = clamp((p - 0.42) / 0.12, 0, 1);
-    const scene2Out = p < 0.88 ? 1 : clamp(1 - (p - 0.88) / 0.12, 0, 1);
+    const cloudsOpacity = p < 0.05 ? lerp(0.7, 1, p / 0.05) : 1;
+    const scene1Opacity = p < 0.22 ? 1 : clamp(1 - (p - 0.22) / 0.16, 0, 1);
+    const portalOpacity = p < 0.4 ? 1 : clamp(1 - (p - 0.4) / 0.22, 0, 1);
+    const scene2In = clamp((p - 0.48) / 0.16, 0, 1);
+    const scene2Out = p < 0.9 ? 1 : clamp(1 - (p - 0.9) / 0.1, 0, 1);
     const scene2Opacity = scene2In * scene2Out;
     return { portalOpacity, cloudsOpacity, scene1Opacity, scene2Opacity };
   }
 
   function motionProgress(p) {
-    if (p < 0.22) return easeInOut(p / 0.22) * 0.12;
-    if (p < 0.55) return 0.12 + easeInOut((p - 0.22) / 0.33) * 0.78;
-    return 0.9 + easeInOut((p - 0.55) / 0.45) * 0.1;
+    if (p < 0.28) return easeInOut(p / 0.28) * 0.12;
+    if (p < 0.62) return 0.12 + easeInOut((p - 0.28) / 0.34) * 0.76;
+    return 0.88 + easeInOut((p - 0.62) / 0.38) * 0.12;
   }
 
   const root = document.getElementById('wonder-experience');
@@ -84,46 +84,132 @@
   curtainLeftEl.querySelector('img').src = CURTAIN_LEFT;
   curtainRightEl.querySelector('img').src = CURTAIN_RIGHT;
 
-  // Card backgrounds (hero reel cards)
-  document.querySelectorAll('[data-card]').forEach(function (el) {
-    const idx = parseInt(el.getAttribute('data-card'), 10);
-    if (!isNaN(idx) && CARD_IMAGES[idx]) {
-      el.style.backgroundImage = 'url(' + CARD_IMAGES[idx] + ')';
-    }
-  });
-
-  const LOOK_ICONS = [
-    '<path d="M12 2l2.4 7.2H22l-6 4.4 2.3 7.2L12 16.8 5.7 20.8 8 13.6 2 9.2h7.6L12 2z"/>',
-    '<path d="M12 3a9 9 0 100 18 9 9 0 000-18zm0 4a2 2 0 110 4 2 2 0 010-4zm0 6c2.2 0 4 1.1 4 2.5V17H8v-1.5C8 14.1 9.8 13 12 13z"/>',
-    '<path d="M4 20V9.5L12 4l8 5.5V20H4zm5-2h6v-5H9v5z"/>',
-    '<path d="M12 2.5C9 7 5.5 9.8 5.5 14a6.5 6.5 0 0013 0c0-4.2-3.5-7-6.5-11.5z"/>',
-    '<path d="M3 18c3.5-1 5.5-4.5 9-4.5S17.5 17 21 18v2H3v-2zm0-5c3.5-1 5.5-4.5 9-4.5s5.5 3.5 9 4.5v2H3v-2zm0-5C6.5 7 8.5 4 12 4s5.5 3 9 4v2H3V8z"/>',
-    '<path d="M3 19l5.5-11 3.2 6.2L14 9l7 10H3z"/>',
-    '<path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 5v4.2l3 1.8-.9 1.5L11 12V7h2z"/>',
-    '<path d="M4.5 20c2.2-7 5.2-10.5 7.5-15.5 2.3 5 5.3 8.5 7.5 15.5H4.5z"/>',
-    '<path d="M2 13.5C5 12.2 7.5 8 12 8s7 4.2 10 5.5v2.2H2v-2.2zM4 18h16v2H4v-2z"/>',
+  const HERO_MEDIA = [
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a778a2b9994d35aa00d2bf1.mp4',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a77885e9a9c7792ea98714a.mp4',
   ];
 
-  // Portfolio cards live in the conventional cloud section below
+  function buildHeroMediaCard(src, index) {
+    const el = document.createElement('div');
+    el.className = 'wonder-hero-video-card';
+    el.setAttribute('aria-label', 'Preview ' + (index + 1));
+    const isImage = /\.webp($|\?)/i.test(src) || /\.(png|jpe?g|gif)($|\?)/i.test(src);
+    if (isImage) {
+      el.innerHTML =
+        '<img class="wonder-hero-video-media" src="' +
+        src +
+        '" alt="" loading="lazy" decoding="async" />';
+    } else {
+      el.innerHTML =
+        '<video class="wonder-hero-video-media" src="' +
+        src +
+        '" muted loop playsinline autoplay preload="metadata"></video>';
+    }
+    return el;
+  }
+
+  document.querySelectorAll('.wonder-hero-videos').forEach(function (container) {
+    container.innerHTML = '';
+    HERO_MEDIA.forEach(function (src, i) {
+      container.appendChild(buildHeroMediaCard(src, i));
+    });
+  });
+
+  // 4th row moved to top; then original rows 1–3; plus new 5th row
+  const LOOK_MEDIA = [
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a778a2b8880872019727774.mp4',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a778a2b9994d35aa00d2bf1.mp4',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a77885e88808720196bedb8.mp4',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a77885e88808720196bece7.mp4',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a77885e9a9c7792ea98714a.mp4',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a77885e9a9c7792ea98715b.mp4',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a77885e9994d35aa0085d26.webp',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a77885e9a9c7792ea987135.mp4',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a77954e88808720198ee865.mp4',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a77954e03343f290fd2b4f8.mp4',
+  ];
+
+  const LOOK_NAME_ORDER = [6, 7, 0, 1, 2, 3, 4, 5, 8, 9];
+
+  // Portfolio cards — 4 rows × 2 columns
   const portfolioGrid = document.getElementById('fbs-portfolio-grid');
   if (portfolioGrid) {
-    ARC_CARDS.forEach(function (card, i) {
-      const el = document.createElement('article');
-      el.className = 'fbs-look-card';
-      const iconPath = LOOK_ICONS[i % LOOK_ICONS.length];
-      el.innerHTML =
-        '<div class="fbs-look-icon" aria-hidden="true">' +
-        '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">' +
-        iconPath +
-        '</svg>' +
-        '</div>' +
-        '<h3 class="fbs-look-title">' +
-        card.title +
-        '</h3>' +
-        '<p class="fbs-look-desc">' +
-        card.desc +
-        '</p>';
-      portfolioGrid.appendChild(el);
+    for (let r = 0; r < LOOK_MEDIA.length; r += 2) {
+      const row = document.createElement('div');
+      row.className = 'fbs-look-row';
+
+      LOOK_MEDIA.slice(r, r + 2).forEach(function (src, col) {
+        const i = r + col;
+        const el = document.createElement('article');
+        el.className = 'fbs-look-card';
+        const nameIdx = LOOK_NAME_ORDER[i];
+        const templateName =
+          (ARC_CARDS[nameIdx] && ARC_CARDS[nameIdx].title) ||
+          'Template ' + String(i + 1).padStart(2, '0');
+        el.setAttribute('aria-label', templateName);
+
+        const isImage = /\.webp($|\?)/i.test(src) || /\.(png|jpe?g|gif)($|\?)/i.test(src);
+        const mediaHtml = isImage
+          ? '<img class="fbs-look-media" src="' + src + '" alt="" loading="lazy" decoding="async" />'
+          : '<video class="fbs-look-media" muted loop playsinline preload="none" data-src="' +
+            src +
+            '"></video>';
+
+        el.innerHTML =
+          '<div class="fbs-look-media-wrap">' +
+          mediaHtml +
+          '</div>' +
+          '<div class="fbs-look-name">' +
+          templateName +
+          '</div>';
+
+        row.appendChild(el);
+      });
+
+      portfolioGrid.appendChild(row);
+    }
+  }
+
+  function activateRowMedia(row) {
+    row.querySelectorAll('video.fbs-look-media').forEach(function (video) {
+      if (!video.getAttribute('src') && video.dataset.src) {
+        video.src = video.dataset.src;
+        video.load();
+      }
+      const playPromise = video.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(function () {});
+      }
+    });
+  }
+
+  // Lightweight row reveal (CSS transform/opacity — once, GPU-friendly)
+  function initRowReveals() {
+    const rows = portfolioGrid ? portfolioGrid.querySelectorAll('.fbs-look-row') : [];
+    if (!rows.length) return;
+
+    if (!('IntersectionObserver' in window)) {
+      rows.forEach(function (row) {
+        row.classList.add('is-inview');
+        activateRowMedia(row);
+      });
+      return;
+    }
+
+    const io = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-inview');
+          activateRowMedia(entry.target);
+          io.unobserve(entry.target);
+        });
+      },
+      { root: null, rootMargin: '0px 0px -12% 0px', threshold: 0.18 }
+    );
+
+    rows.forEach(function (row) {
+      io.observe(row);
     });
   }
 
@@ -209,8 +295,8 @@
   applyCurtainState();
 
   function rafLoop() {
-    // Light damping — snappier than before
-    scrollProgressValue = lerp(scrollProgressValue, scrollProgressTarget, 0.18);
+    // Heavy damping — scroll feels slower / more cinematic
+    scrollProgressValue = lerp(scrollProgressValue, scrollProgressTarget, 0.055);
 
     smoothX = lerp(smoothX, rawX, 0.07);
     smoothY = lerp(smoothY, rawY, 0.07);
@@ -235,9 +321,19 @@
 
     // PORTAL
     const portalScale = lerp(1, 7.5, ep);
+    // On mobile, shift portal right so the opening sits in the visual center
+    const portalOriginX = isMobile ? '50%' : '52%';
+    const portalOriginY = isMobile ? '40%' : '38%';
+    const portalBiasX = isMobile ? Math.round(window.innerWidth * 0.1) : 0;
     portalEl.style.transform =
-      'scale(' + portalScale + ') translate(' + rx * 7 + 'px, ' + ry * 7 + 'px)';
-    portalEl.style.transformOrigin = '52% 38%';
+      'scale(' +
+      portalScale +
+      ') translate(' +
+      (rx * 7 + portalBiasX) +
+      'px, ' +
+      ry * 7 +
+      'px)';
+    portalEl.style.transformOrigin = portalOriginX + ' ' + portalOriginY;
     portalEl.style.opacity = String(opacities.portalOpacity);
 
     // CURTAINS — CSS transition owns the entrance open; after entranceDone, rAF drives
@@ -283,9 +379,44 @@
 
   requestAnimationFrame(rafLoop);
 
-  // GSAP: content crossfade only — sky stays the same fixed layer
+  // Smooth, slowed page scroll (Lenis) for an immersive feel
+  function initSmoothScroll() {
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion || typeof Lenis === 'undefined') return null;
+
+    var lenis = new Lenis({
+      duration: 1.75,
+      easing: function (t) {
+        return t === 1 ? 1 : 1 - Math.pow(2, -12 * t);
+      },
+      smoothWheel: true,
+      touchMultiplier: 1.1,
+      wheelMultiplier: 0.85,
+    });
+
+    lenis.on('scroll', function () {
+      onScroll();
+      if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.update();
+    });
+
+    function lenisRaf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(lenisRaf);
+    }
+    requestAnimationFrame(lenisRaf);
+
+    return lenis;
+  }
+
+  // Section fade-in; rows use IntersectionObserver
   function initHandoff() {
-    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+    initSmoothScroll();
+    initRowReveals();
+
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+      if (portfolioInner) portfolioInner.style.opacity = '1';
+      return;
+    }
     gsap.registerPlugin(ScrollTrigger);
 
     if (portfolioInner) {
@@ -295,38 +426,16 @@
         {
           opacity: 1,
           y: 0,
-          ease: 'none',
+          ease: 'power2.out',
+          duration: 1.45,
           scrollTrigger: {
             trigger: portfolioEl,
-            start: 'top 90%',
-            end: 'top 40%',
-            scrub: 0.55,
+            start: 'top 88%',
+            toggleActions: 'play none none none',
           },
         }
       );
     }
-
-    const cards = portfolioGrid ? portfolioGrid.querySelectorAll('.fbs-look-card') : [];
-    if (cards.length) {
-      gsap.fromTo(
-        cards,
-        { opacity: 0, y: 28, scale: 0.98 },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          ease: 'none',
-          stagger: 0.03,
-          scrollTrigger: {
-            trigger: portfolioGrid,
-            start: 'top 90%',
-            end: 'top 45%',
-            scrub: 0.5,
-          },
-        }
-      );
-    }
-
   }
 
   if (document.readyState === 'complete') {
