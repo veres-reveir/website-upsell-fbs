@@ -1,0 +1,1149 @@
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  background: #0a0608;
+  scroll-behavior: auto;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Imprima', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+@keyframes wonder-bobUp {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* ── Gold ticket banner ── */
+.ticket-banner {
+  position: relative;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 72px;
+  padding: 18px 24px;
+  background: #000;
+}
+
+.ticket-banner-text {
+  margin: 0;
+  max-width: 1100px;
+  text-align: center;
+  font-family: 'Viaoda Libre', serif;
+  font-size: clamp(16px, 2.8vw, 28px);
+  line-height: 1.25;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+@media (max-width: 767px) {
+  .ticket-banner {
+    min-height: 64px;
+    padding: 16px 16px;
+  }
+
+  .ticket-banner-text {
+    letter-spacing: 0.04em;
+  }
+}
+
+/* ── Shared sky (fixed) — one continuous world behind portal + cards ── */
+.fbs-shared-sky {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: #0a0608;
+}
+
+/* ── Outer scrollytelling container ── */
+#wonder-experience {
+  position: relative;
+  z-index: 1;
+  height: 155vh;
+  width: 100%;
+  background: transparent;
+}
+
+.wonder-sticky {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* ── Layers ── */
+.wonder-world {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.wonder-world img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.wonder-clouds {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  will-change: transform;
+}
+
+.wonder-clouds img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.wonder-arc {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  z-index: 9;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  .wonder-arc {
+    bottom: 60px;
+  }
+}
+
+.wonder-arc-track {
+  position: relative;
+  width: 100vw;
+  height: 360px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  overflow: visible;
+}
+
+@media (max-width: 767px) {
+  .wonder-arc-track {
+    height: 260px;
+  }
+}
+
+.wonder-portal {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  will-change: transform;
+}
+
+.wonder-portal img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.wonder-curtain {
+  position: absolute;
+  inset: 0;
+  z-index: 16;
+  will-change: transform;
+  transition: transform 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wonder-curtain img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.wonder-curtain-left img {
+  object-position: right center;
+}
+
+.wonder-curtain-right img {
+  object-position: left center;
+}
+
+/* ── Scene 1 ── */
+.wonder-scene1 {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  transition: opacity 0.1s linear;
+  opacity: 1;
+}
+
+.wonder-scene2 {
+  opacity: 0;
+}
+
+/* Entrance helpers */
+.wonder-enter {
+  opacity: 0;
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+
+.wonder-enter[data-enter="heading"] {
+  transform: translateY(24px);
+  transition-delay: 0.3s;
+}
+
+.wonder-s1-desktop .wonder-s1-heading.wonder-enter {
+  transform: translateY(calc(-50% + 24px));
+}
+
+.wonder-s1-desktop .wonder-s1-cards.wonder-enter {
+  transform: translateY(calc(-50% + 32px));
+  transition-delay: 0.55s;
+}
+
+.wonder-enter[data-enter="dots"] {
+  transition: opacity 0.9s ease;
+  transition-delay: 0.8s;
+}
+
+.wonder-enter[data-enter="cue"] {
+  transform: translateX(-50%) translateY(20px);
+  transition-delay: 0.9s;
+}
+
+.wonder-visible .wonder-enter[data-enter="heading"],
+.wonder-visible .wonder-s1-tablet.wonder-enter,
+.wonder-visible .wonder-s1-mobile.wonder-enter {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.wonder-visible .wonder-s1-desktop .wonder-s1-heading.wonder-enter {
+  opacity: 1;
+  transform: translateY(-50%);
+}
+
+.wonder-visible .wonder-s1-desktop .wonder-s1-cards.wonder-enter {
+  opacity: 1;
+  transform: translateY(-50%);
+}
+
+.wonder-visible .wonder-enter[data-enter="dots"] {
+  opacity: 1;
+}
+
+.wonder-visible .wonder-enter[data-enter="cue"] {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Desktop scene 1 — xl+ */
+.wonder-s1-desktop {
+  display: none;
+}
+
+@media (min-width: 1280px) {
+  .wonder-s1-desktop {
+    display: block;
+  }
+}
+
+.wonder-s1-heading {
+  position: absolute;
+  top: 46%;
+  left: 60px;
+  max-width: 440px;
+}
+
+.wonder-s1-heading h1 {
+  margin: 0;
+  font-family: 'Viaoda Libre', serif;
+  font-size: clamp(30px, 3.6vw, 44px);
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 2px 24px rgba(0,0,0,0.7), 0 1px 4px rgba(0,0,0,0.9);
+}
+
+.wonder-s1-heading .wonder-subhead {
+  font-family: 'Viaoda Libre', serif;
+  font-size: clamp(22px, 2.4vw, 30px);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: rgba(255,245,235,0.95);
+  margin: 16px 0 0;
+  max-width: 420px;
+  text-shadow: 0 2px 18px rgba(0,0,0,0.7), 0 1px 4px rgba(0,0,0,0.85);
+}
+
+.wonder-s1-heading .wonder-body {
+  font-family: 'Imprima', sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+  color: rgba(255,245,235,0.88);
+  margin: 16px 0 0;
+  max-width: 400px;
+  text-shadow: 0 1px 12px rgba(0,0,0,0.8);
+}
+
+.wonder-s1-cards {
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  display: flex;
+  gap: 12px;
+}
+
+/* Shared card styles */
+.wonder-card {
+  position: relative;
+  border: none;
+  padding: 0;
+  border-radius: 28px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+  overflow: hidden;
+  cursor: pointer;
+  background-size: cover;
+  background-position: center;
+  width: 158px;
+  height: 158px;
+  flex-shrink: 0;
+}
+
+.wonder-card-grad {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 60%;
+  background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.18) 60%, transparent 100%);
+  pointer-events: none;
+}
+
+.wonder-card-grad-simple {
+  background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%);
+}
+
+.wonder-card-blur {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 44%;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  mask-image: linear-gradient(to top, black 40%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, black 40%, transparent 100%);
+  pointer-events: none;
+}
+
+.wonder-card-content {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1;
+}
+
+.wonder-card-content-col {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.wonder-play-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.88);
+  flex-shrink: 0;
+}
+
+.wonder-card-label {
+  font-family: 'Imprima', sans-serif;
+  font-size: 18px;
+  color: #fff;
+  line-height: 1.3;
+  text-align: left;
+}
+
+.wonder-card-label-soft {
+  color: rgba(255,255,255,0.9);
+}
+
+.wonder-card-num {
+  font-family: 'Viaoda Libre', serif;
+  font-size: 36px;
+  color: #fff;
+  line-height: 1;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+}
+
+/* Tablet scene 1 */
+.wonder-s1-tablet {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  padding: 80px 32px 96px;
+  text-align: center;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) and (max-width: 1279px) {
+  .wonder-s1-tablet {
+    display: flex;
+  }
+}
+
+.wonder-s1-tablet h1 {
+  margin: 0;
+  font-family: 'Viaoda Libre', serif;
+  font-size: clamp(28px, 4.2vw, 40px);
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  color: #3b1a0a;
+  max-width: 560px;
+}
+
+.wonder-s1-tablet .wonder-subhead {
+  font-family: 'Viaoda Libre', serif;
+  font-size: clamp(22px, 3.2vw, 28px);
+  max-width: 520px;
+  color: #3b1a0a;
+  margin: 0;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.wonder-s1-tablet .wonder-body {
+  font-family: 'Imprima', sans-serif;
+  font-size: 16px;
+  max-width: 480px;
+  color: #5c2d0e;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.wonder-s1-cards-tablet {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+}
+
+.wonder-s1-tablet .wonder-card {
+  width: 140px;
+  height: 140px;
+  border-radius: 22px;
+}
+
+.wonder-s1-tablet .wonder-play-btn {
+  width: 26px;
+  height: 26px;
+}
+
+.wonder-s1-tablet .wonder-card-label {
+  font-size: 14px;
+}
+
+.wonder-s1-tablet .wonder-card-num {
+  font-size: 28px;
+}
+
+/* Mobile scene 1 */
+.wonder-s1-mobile {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  padding: 80px 24px 96px;
+  text-align: center;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 767px) {
+  .wonder-s1-mobile {
+    display: flex;
+  }
+}
+
+.wonder-s1-mobile h1 {
+  margin: 0;
+  font-family: 'Viaoda Libre', serif;
+  font-size: clamp(24px, 6.2vw, 32px);
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  color: #3b1a0a;
+  max-width: 340px;
+}
+
+.wonder-s1-mobile .wonder-subhead {
+  font-family: 'Viaoda Libre', serif;
+  font-size: clamp(20px, 5.2vw, 26px);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  max-width: 340px;
+  color: #3b1a0a;
+  margin: 12px 0 0;
+}
+
+.wonder-s1-mobile .wonder-body {
+  font-family: 'Imprima', sans-serif;
+  font-size: 15px;
+  line-height: 1.625;
+  max-width: 320px;
+  color: #5c2d0e;
+  margin: 14px 0 0;
+}
+
+.wonder-card-mobile-only {
+  width: 140px;
+  height: 140px;
+  border-radius: 22px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  margin-top: 24px;
+}
+
+.wonder-s1-mobile .wonder-play-btn {
+  width: 26px;
+  height: 26px;
+}
+
+.wonder-s1-mobile .wonder-card-label {
+  font-size: 13px;
+}
+
+/* Dots */
+.wonder-dots {
+  position: absolute;
+  bottom: 40px;
+  left: 60px;
+  display: flex;
+  gap: 7px;
+  align-items: center;
+}
+
+@media (max-width: 767px) {
+  .wonder-dots {
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .wonder-visible .wonder-enter[data-enter="dots"] {
+    transform: translateX(-50%);
+  }
+}
+
+.wonder-dot {
+  display: block;
+  height: 4px;
+  width: 14px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.35);
+}
+
+.wonder-dot-active {
+  width: 28px;
+  background: rgba(255,255,255,0.9);
+}
+
+/* Scroll cue — desktop only */
+.wonder-scroll-cue {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (min-width: 1280px) {
+  .wonder-scroll-cue {
+    display: flex;
+  }
+}
+
+.wonder-scroll-label {
+  font-family: 'Imprima', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: lowercase;
+  color: rgba(255,255,255,0.7);
+}
+
+.wonder-scroll-chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.5);
+  animation: wonder-bobUp 1.8s ease-in-out infinite;
+}
+
+/* ── Floating CTAs ── */
+.wonder-float-ctas {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  width: min(460px, calc(100vw - 48px));
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.wonder-offer-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px 32px;
+  text-decoration: none;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #f3e0c4 0%, #e0b87a 48%, #c9924e 100%);
+  border: 1px solid rgba(92, 45, 14, 0.28);
+  box-shadow:
+    0 10px 36px rgba(80, 40, 10, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+}
+
+.wonder-offer-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.04);
+  box-shadow:
+    0 14px 40px rgba(80, 40, 10, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.wonder-offer-btn-title {
+  font-family: 'Viaoda Libre', serif;
+  font-size: 15px;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  color: #3b1a0a;
+  white-space: nowrap;
+}
+
+.wonder-offer-btn-sub {
+  font-family: 'Imprima', sans-serif;
+  font-size: 14px;
+  line-height: 1.35;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  color: #6b2e0e;
+  white-space: nowrap;
+}
+
+.wonder-ticket-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 32px;
+  font-family: 'Imprima', sans-serif;
+  font-size: 15px;
+  letter-spacing: 0.03em;
+  color: #f7e7d2;
+  text-decoration: none;
+  text-align: center;
+  white-space: nowrap;
+  background: linear-gradient(145deg, rgba(92, 45, 14, 0.72) 0%, rgba(59, 26, 10, 0.78) 100%);
+  border: 1px solid rgba(224, 184, 122, 0.45);
+  border-radius: 999px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 8px 28px rgba(40, 16, 6, 0.4),
+    inset 0 1px 0 rgba(255, 220, 180, 0.18);
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+}
+
+.wonder-ticket-btn:hover {
+  background: linear-gradient(145deg, rgba(107, 46, 14, 0.82) 0%, rgba(70, 30, 12, 0.88) 100%);
+  border-color: rgba(243, 224, 196, 0.65);
+  color: #fff8ee;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 767px) {
+  .wonder-float-ctas {
+    bottom: 20px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+  }
+
+  .wonder-offer-btn {
+    padding: 14px 16px;
+    border-radius: 16px;
+  }
+
+  .wonder-offer-btn-title {
+    font-size: 13px;
+  }
+
+  .wonder-offer-btn-sub {
+    font-size: 12px;
+  }
+
+  .wonder-ticket-btn {
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+}
+
+/* ── Scene 2 ── */
+.wonder-scene2 {
+  position: absolute;
+  inset: 0;
+  z-index: 46;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.wonder-s2-header {
+  margin-top: 12vh;
+  text-align: center;
+  padding: 0 20px;
+}
+
+@media (max-width: 767px) {
+  .wonder-s2-header {
+    margin-top: 8vh;
+  }
+}
+
+.wonder-s2-header h2 {
+  margin: 0;
+  font-family: 'Viaoda Libre', serif;
+  font-size: clamp(38px, 6.5vw, 78px);
+  color: #ffffff;
+  letter-spacing: 0.03em;
+  line-height: 1.05;
+}
+
+@media (max-width: 767px) {
+  .wonder-s2-header h2 {
+    font-size: clamp(28px, 8vw, 44px);
+  }
+}
+
+.wonder-s2-header p {
+  font-family: 'Imprima', sans-serif;
+  font-size: 20px;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+  margin: 12px auto 0;
+  max-width: 480px;
+  color: rgba(255,255,255,0.82);
+  text-align: center;
+}
+
+.wonder-s2-header .wonder-scroll-work {
+  margin: 28px auto 0;
+  font-family: 'Imprima', sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  letter-spacing: 0.16em;
+  text-transform: lowercase;
+  color: rgba(255, 255, 255, 0.75);
+  max-width: none;
+  animation: wonder-bobUp 1.8s ease-in-out infinite;
+}
+
+@media (max-width: 767px) {
+  .wonder-s2-header p {
+    font-size: 14px;
+    max-width: 260px;
+  }
+}
+
+/* ── Arc cards ── */
+.wonder-arc-card {
+  border-radius: 26px;
+  box-shadow: 0 8px 40px rgba(80,40,60,0.18);
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  width: 220px;
+  height: 230px;
+  pointer-events: auto;
+}
+
+@media (max-width: 767px) {
+  .wonder-arc-card {
+    border-radius: 18px;
+    padding: 12px;
+    width: 160px;
+    height: 175px;
+  }
+}
+
+.wonder-arc-badge {
+  align-self: flex-end;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(80,50,60,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Imprima', sans-serif;
+  font-size: 10px;
+  color: rgba(80,50,60,0.6);
+  flex-shrink: 0;
+}
+
+.wonder-arc-card h3 {
+  font-family: 'Viaoda Libre', serif;
+  font-size: 30px;
+  color: #3a2530;
+  line-height: 1.15;
+  margin: 0 0 8px;
+}
+
+.wonder-arc-card p {
+  font-family: 'Imprima', sans-serif;
+  font-size: 15px;
+  color: rgba(58,37,48,0.65);
+  line-height: 1.5;
+  margin: 0;
+}
+
+@media (max-width: 767px) {
+  .wonder-arc-card h3 {
+    font-size: 22px;
+    margin: 0 0 4px;
+  }
+
+  .wonder-arc-card p {
+    font-size: 12px;
+  }
+}
+
+/* ── Conventional page (post-immersive) ── */
+.fbs-page {
+  position: relative;
+  z-index: 2;
+  background: transparent;
+  color: rgba(255, 245, 235, 0.9);
+}
+
+.fbs-section {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 96px 32px;
+}
+
+/* Portfolio / 2028 looks — transparent; shared sky shows through */
+.fbs-portfolio {
+  position: relative;
+  max-width: none;
+  padding: 0;
+  overflow: visible;
+  background: transparent;
+  min-height: 100vh;
+}
+
+.fbs-portfolio-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 120px 32px 140px;
+  opacity: 0;
+  transform: translateY(48px);
+  will-change: opacity, transform;
+}
+
+.fbs-portfolio h2 {
+  max-width: 18ch;
+}
+
+.fbs-portfolio-grid {
+  margin-top: 48px;
+  width: max-content;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 280px);
+  justify-content: center;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.fbs-look-card {
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(80px);
+  -webkit-backdrop-filter: blur(80px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0;
+  padding: 24px;
+  width: 280px;
+  height: 440px;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  transition: border-color 0.3s ease;
+  will-change: transform, opacity, filter;
+  box-sizing: border-box;
+}
+
+.fbs-look-card:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.fbs-look-icon {
+  margin-bottom: 32px;
+  color: #cb8dff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fbs-look-icon svg {
+  width: clamp(36px, 3.5vw, 48px);
+  height: clamp(36px, 3.5vw, 48px);
+  opacity: 0.95;
+}
+
+.fbs-look-title {
+  font-family: 'Viaoda Libre', serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.15;
+  color: #fff;
+  margin: auto 0 8px 0;
+  letter-spacing: -0.01em;
+}
+
+.fbs-look-desc {
+  font-family: 'Imprima', sans-serif;
+  font-size: clamp(12px, 1vw, 14px);
+  line-height: 20px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.64);
+  margin: 0;
+  letter-spacing: 0.015em;
+}
+
+@media (max-width: 960px) {
+  .fbs-portfolio-grid {
+    grid-template-columns: repeat(2, minmax(0, 280px));
+    width: 100%;
+    max-width: 592px;
+  }
+}
+
+@media (max-width: 768px) {
+  .fbs-portfolio-inner {
+    padding: 72px 24px 100px;
+  }
+
+  .fbs-portfolio-grid {
+    grid-template-columns: 1fr;
+    width: 100%;
+    max-width: none;
+    gap: 16px;
+  }
+
+  .fbs-look-card {
+    padding: 24px;
+    width: 100%;
+    height: auto;
+    min-height: 240px;
+  }
+
+  .fbs-look-icon {
+    margin-bottom: 24px;
+  }
+}
+
+.fbs-eyebrow {
+  margin: 0 0 14px;
+  font-family: 'Imprima', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(224, 184, 122, 0.9);
+}
+
+.fbs-section h2 {
+  margin: 0;
+  font-family: 'Viaoda Libre', serif;
+  font-size: clamp(32px, 5vw, 52px);
+  line-height: 1.12;
+  letter-spacing: 0.01em;
+  color: #fff8ee;
+  max-width: 16ch;
+}
+
+.fbs-lead {
+  margin: 18px 0 0;
+  max-width: 54ch;
+  font-family: 'Imprima', sans-serif;
+  font-size: 18px;
+  line-height: 1.65;
+  color: rgba(255, 245, 235, 0.78);
+}
+
+.fbs-lead strong {
+  color: #f3e0c4;
+  font-weight: normal;
+}
+
+.fbs-list {
+  list-style: none;
+  margin: 48px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+}
+
+.fbs-list h3,
+.fbs-steps h3 {
+  margin: 0 0 8px;
+  font-family: 'Viaoda Libre', serif;
+  font-size: 24px;
+  line-height: 1.2;
+  color: #f3e0c4;
+}
+
+.fbs-list p,
+.fbs-steps p {
+  margin: 0;
+  font-family: 'Imprima', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(255, 245, 235, 0.72);
+}
+
+.fbs-process {
+  border-top: 1px solid rgba(224, 184, 122, 0.18);
+  border-bottom: 1px solid rgba(224, 184, 122, 0.18);
+}
+
+.fbs-steps {
+  list-style: none;
+  margin: 48px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.fbs-steps li {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.fbs-step-num {
+  flex-shrink: 0;
+  font-family: 'Imprima', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  color: rgba(224, 184, 122, 0.85);
+  padding-top: 6px;
+}
+
+.fbs-final {
+  text-align: center;
+  padding-bottom: 140px;
+}
+
+.fbs-final h2,
+.fbs-final .fbs-lead {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 22ch;
+}
+
+.fbs-final .fbs-lead {
+  max-width: 46ch;
+}
+
+.fbs-final-actions {
+  margin-top: 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 900px) {
+  .fbs-list {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+/* included/process sit on the dark page surface */
+.fbs-included,
+.fbs-process,
+.fbs-final {
+  position: relative;
+}
+
+@media (max-width: 767px) {
+  .fbs-section {
+    padding: 72px 24px;
+  }
+
+  .fbs-final {
+    padding-bottom: 120px;
+  }
+
+  .fbs-lead {
+    font-size: 16px;
+  }
+}
