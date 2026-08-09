@@ -243,14 +243,25 @@ html.fbs-loading body {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 72px;
-  padding: 18px 24px;
+  min-height: 76px;
+  padding: 17px 24px 21px;
   background: #000;
+}
+
+.ticket-banner-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
 }
 
 .ticket-banner-text {
   margin: 0;
   max-width: 1100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
   text-align: center;
   font-family: 'Instrument Serif', serif;
   font-size: clamp(16px, 2.8vw, 28px);
@@ -260,14 +271,101 @@ html.fbs-loading body {
   color: #fff;
 }
 
+/* Live status pip — signals "in progress", not "done" */
+.ticket-banner-dot {
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #e0b87a;
+  box-shadow: 0 0 0 0 rgba(224, 184, 122, 0.6);
+  animation: ticket-pulse 2.4s ease-out infinite;
+}
+
+@keyframes ticket-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(224, 184, 122, 0.55);
+    opacity: 1;
+  }
+  70% {
+    box-shadow: 0 0 0 9px rgba(224, 184, 122, 0);
+    opacity: 0.75;
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(224, 184, 122, 0);
+    opacity: 1;
+  }
+}
+
+.ticket-banner-sub {
+  margin: 0;
+  max-width: 60ch;
+  text-align: center;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(11px, 1.4vw, 13px);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+/* Perforated stub edge — reads as a ticket rather than a notification bar */
+.ticket-banner-perf {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 7px;
+  pointer-events: none;
+  background-image: radial-gradient(
+    circle at 3.5px 3.5px,
+    rgba(224, 184, 122, 0.42) 1.6px,
+    transparent 2.2px
+  );
+  background-size: 15px 7px;
+  background-repeat: repeat-x;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticket-banner-dot {
+    animation: none;
+  }
+}
+
 @media (max-width: 767px) {
   .ticket-banner {
-    min-height: 64px;
-    padding: 16px 16px;
+    min-height: 68px;
+    padding: 14px 16px 18px;
+  }
+
+  .ticket-banner-inner {
+    gap: 6px;
   }
 
   .ticket-banner-text {
+    gap: 10px;
     letter-spacing: 0.04em;
+  }
+
+  .ticket-banner-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .ticket-banner-sub {
+    font-size: 10.5px;
+    letter-spacing: 0.02em;
+    max-width: 34ch;
+  }
+
+  .ticket-banner-perf {
+    height: 6px;
+    background-size: 12px 6px;
+    background-image: radial-gradient(
+      circle at 3px 3px,
+      rgba(224, 184, 122, 0.4) 1.4px,
+      transparent 2px
+    );
   }
 }
 
@@ -923,12 +1021,24 @@ html.fbs-loading body {
 }
 
 @media (max-width: 767px) {
+  /* Must clear the fixed CTA stack — it paints above the sticky stage */
   .wonder-scroll-cue {
-    bottom: 88px;
+    bottom: 134px;
+    gap: 6px;
+  }
+
+  .wonder-scroll-label {
+    font-size: 8.5px;
+    max-width: 190px;
+  }
+
+  .wonder-scroll-chevron {
+    width: 26px;
+    height: 26px;
   }
 
   .wonder-s1-mobile {
-    padding-bottom: 148px;
+    padding-bottom: 210px;
   }
 }
 
