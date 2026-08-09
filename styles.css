@@ -32,6 +32,20 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* Lenis — keep native scroll height, avoid fighting browser smooth-scroll */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
 @keyframes wonder-bobUp {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-6px); }
@@ -86,7 +100,7 @@ html {
 #wonder-experience {
   position: relative;
   z-index: 1;
-  height: 280vh;
+  height: 320vh;
   width: 100%;
   background: transparent;
 }
@@ -98,13 +112,17 @@ html {
   height: 100vh;
   overflow: hidden;
   background: transparent;
+  /* Promote sticky stage to its own layer for steadier scroll transforms */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* ── Layers ── */
 .wonder-world {
   position: absolute;
   inset: 0;
-  will-change: transform;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 .wonder-world img {
@@ -120,7 +138,8 @@ html {
   left: 0;
   right: 0;
   z-index: 10;
-  will-change: transform;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 .wonder-clouds img {
@@ -134,7 +153,8 @@ html {
   /* Oversized so mouse-parallax never reveals the fixed sky at the edges */
   inset: -18%;
   z-index: 15;
-  will-change: transform;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 .wonder-portal img {
@@ -201,12 +221,14 @@ html {
   position: absolute;
   inset: 0;
   z-index: 20;
-  transition: opacity 0.1s linear;
+  /* Opacity driven by rAF — no CSS transition (avoids fighting the lerp) */
   opacity: 1;
+  will-change: opacity;
 }
 
 .wonder-scene2 {
   opacity: 0;
+  will-change: opacity;
 }
 
 /* Entrance helpers */
@@ -786,7 +808,7 @@ html {
 
 .wonder-offer-btn-title {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.25;
   letter-spacing: 0.01em;
   color: #3b1a0a;
@@ -854,19 +876,19 @@ html {
 
 @media (max-width: 767px) {
   .wonder-float-ctas {
-    bottom: 10px;
+    bottom: 12px;
     left: 50%;
     right: auto;
     transform: translateX(-50%);
-    width: min(220px, calc(100vw - 48px));
-    gap: 5px;
+    width: min(270px, calc(100vw - 32px));
+    gap: 7px;
     align-items: stretch;
   }
 
   .wonder-offer-btn {
-    padding: 8px 10px;
-    border-radius: 11px;
-    gap: 2px;
+    padding: 12px 14px;
+    border-radius: 13px;
+    gap: 3px;
     width: 100%;
   }
 
@@ -876,19 +898,19 @@ html {
 
   .wonder-offer-btn-title-short {
     display: block;
-    font-size: 10px;
+    font-size: 13.5px;
     line-height: 1.2;
     white-space: nowrap;
   }
 
   .wonder-offer-btn-sub {
-    font-size: 8.5px;
+    font-size: 10px;
     letter-spacing: 0.05em;
   }
 
   .wonder-ticket-btn {
-    padding: 7px 10px;
-    font-size: 9.5px;
+    padding: 11px 14px;
+    font-size: 11.5px;
     border-radius: 999px;
     width: 100%;
     white-space: nowrap;
@@ -1013,10 +1035,12 @@ html {
   z-index: 1;
   max-width: 1320px;
   margin: 0 auto;
-  padding: 120px 32px 160px;
+  padding: 120px 32px 40px;
   opacity: 0;
-  transform: translateY(36px);
-  transition: opacity 1.2s ease, transform 1.2s ease;
+  transform: translateY(28px);
+  transition:
+    opacity 1.35s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1.35s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: opacity, transform;
 }
 
@@ -1233,7 +1257,16 @@ html {
   z-index: 0;
   pointer-events: none;
   transform: scale(1);
-  transition: transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+  opacity: 0;
+  transition:
+    transform 1.1s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.45s ease;
+  background: rgba(20, 10, 16, 0.35);
+}
+
+.fbs-look-media.is-ready,
+img.fbs-look-media {
+  opacity: 1;
 }
 
 .fbs-look-row.is-inview .fbs-look-card:hover .fbs-look-media {
@@ -1319,9 +1352,319 @@ html {
   }
 }
 
+/* ── Closing shift pitch (after video cards) ── */
+.fbs-shift {
+  position: relative;
+  margin: 220px auto 180px;
+  max-width: 1080px;
+  padding: 76px 72px 84px;
+}
+
+/* Light glass slab — sky reads through, content stays crisp */
+.fbs-shift-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 34px;
+  background: linear-gradient(
+    162deg,
+    rgba(255, 255, 255, 0.74) 0%,
+    rgba(253, 246, 255, 0.6) 42%,
+    rgba(255, 244, 248, 0.68) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow:
+    0 34px 90px rgba(58, 28, 90, 0.22),
+    0 2px 10px rgba(58, 28, 90, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(30px) saturate(150%);
+  -webkit-backdrop-filter: blur(30px) saturate(150%);
+}
+
+.fbs-shift > *:not(.fbs-shift-veil) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Asymmetric editorial header */
+.fbs-shift-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  column-gap: 64px;
+  align-items: start;
+}
+
+.fbs-shift-kicker {
+  margin: 0 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(107, 63, 143, 0.9);
+}
+
+.fbs-shift-kicker-mark {
+  color: #b4593f;
+}
+
+.fbs-shift-title {
+  margin: 0;
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(34px, 5.4vw, 66px);
+  line-height: 1.03;
+  letter-spacing: -0.015em;
+  color: #8a4a2a;
+  text-wrap: balance;
+}
+
+.fbs-shift-title em {
+  display: block;
+  font-style: italic;
+  color: #8a3f6d;
+}
+
+.fbs-shift-note {
+  padding-top: 12px;
+}
+
+.fbs-shift-note-rule {
+  display: block;
+  width: 56px;
+  height: 1px;
+  margin-bottom: 22px;
+  background: linear-gradient(90deg, rgba(138, 63, 109, 0.85) 0%, rgba(107, 63, 143, 0.1) 100%);
+}
+
+.fbs-shift-body {
+  margin: 0 0 16px;
+  max-width: 40ch;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(15px, 1.5vw, 17px);
+  line-height: 1.72;
+  color: rgba(58, 38, 78, 0.86);
+}
+
+.fbs-shift-body:last-child {
+  margin-bottom: 0;
+}
+
+/* Numbered index — reads like a codex, not a feature grid */
+.fbs-shift-index {
+  margin-top: 76px;
+}
+
+.fbs-shift-index-label {
+  margin: 0 0 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(107, 63, 143, 0.7);
+}
+
+.fbs-shift-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.fbs-shift-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 24px;
+  padding: 22px 4px 20px;
+  border-bottom: 1px solid rgba(74, 47, 102, 0.16);
+  transition: border-color 0.5s ease;
+}
+
+.fbs-shift-list li:first-child {
+  border-top: 1px solid rgba(74, 47, 102, 0.16);
+}
+
+.fbs-shift-num {
+  flex-shrink: 0;
+  width: 2.5ch;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: rgba(138, 63, 109, 0.7);
+  transition: color 0.4s ease;
+}
+
+.fbs-shift-item {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(22px, 3vw, 34px);
+  line-height: 1.1;
+  letter-spacing: -0.005em;
+  color: #2b1640;
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), color 0.4s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .fbs-shift-list li:hover {
+    border-color: rgba(138, 63, 109, 0.5);
+  }
+
+  .fbs-shift-list li:hover .fbs-shift-num {
+    color: #8a3f6d;
+  }
+
+  .fbs-shift-list li:hover .fbs-shift-item {
+    transform: translateX(10px);
+    color: #6b2f57;
+  }
+}
+
+/* Outro — the emotional beat gets full width and air */
+.fbs-shift-outro {
+  margin-top: 84px;
+  max-width: 680px;
+}
+
+.fbs-shift-close {
+  margin: 0;
+  max-width: 34ch;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(15px, 1.5vw, 17px);
+  line-height: 1.7;
+  color: rgba(58, 38, 78, 0.78);
+}
+
+.fbs-shift-close-em {
+  margin: 14px 0 0;
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: clamp(30px, 5vw, 58px);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  max-width: 20ch;
+  color: #2b1640;
+}
+
+.fbs-shift-close-em::after {
+  content: '';
+  display: block;
+  width: 92px;
+  height: 1px;
+  margin-top: 26px;
+  background: linear-gradient(90deg, rgba(138, 63, 109, 0.75) 0%, rgba(107, 63, 143, 0.08) 100%);
+}
+
+.fbs-shift-actions {
+  margin-top: 56px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 28px;
+}
+
+.fbs-shift-offer {
+  width: auto;
+  min-width: 320px;
+}
+
+.fbs-shift-ticket {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 2px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(74, 47, 102, 0.75);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(74, 47, 102, 0.28);
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+.fbs-shift-ticket-arrow {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fbs-shift-ticket:hover {
+  color: #2b1640;
+  border-color: rgba(43, 22, 64, 0.7);
+}
+
+.fbs-shift-ticket:hover .fbs-shift-ticket-arrow {
+  transform: translateX(6px);
+}
+
+@media (max-width: 1024px) {
+  .fbs-shift {
+    padding: 56px 44px 62px;
+  }
+
+  .fbs-shift-top {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 34px;
+  }
+
+  .fbs-shift-note {
+    padding-top: 0;
+  }
+}
+
 @media (max-width: 768px) {
+  .fbs-shift {
+    margin: 120px auto 150px;
+    padding: 40px 22px 46px;
+  }
+
+  .fbs-shift-veil {
+    border-radius: 24px;
+    backdrop-filter: blur(22px) saturate(140%);
+    -webkit-backdrop-filter: blur(22px) saturate(140%);
+  }
+
+  .fbs-shift-kicker {
+    margin-bottom: 14px;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+  }
+
+  .fbs-shift-index {
+    margin-top: 48px;
+  }
+
+  .fbs-shift-list li {
+    gap: 16px;
+    padding: 16px 2px 15px;
+  }
+
+  .fbs-shift-num {
+    font-size: 10px;
+  }
+
+  .fbs-shift-outro {
+    margin-top: 52px;
+    max-width: none;
+  }
+
+  .fbs-shift-actions {
+    margin-top: 40px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+  }
+
+  .fbs-shift-offer {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .fbs-shift-ticket {
+    align-self: flex-start;
+  }
+
   .fbs-portfolio-inner {
-    padding: 64px 16px 120px;
+    padding: 64px 16px 24px;
   }
 
   .fbs-portfolio-grid {

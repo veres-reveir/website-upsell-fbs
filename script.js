@@ -41,21 +41,26 @@
     return Math.min(Math.max(scrolledPastTop / containerScrollHeight, 0), 1);
   }
 
-  // Upsell pacing (280vh) — slower, more immersive
+  // Softer ease — less abrupt acceleration through the portal
+  function easeInOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  // Upsell pacing — longer fades so scene handoffs feel cinematic
   function computeOpacities(p) {
-    const cloudsOpacity = p < 0.05 ? lerp(0.7, 1, p / 0.05) : 1;
-    const scene1Opacity = p < 0.22 ? 1 : clamp(1 - (p - 0.22) / 0.16, 0, 1);
-    const portalOpacity = p < 0.4 ? 1 : clamp(1 - (p - 0.4) / 0.22, 0, 1);
-    const scene2In = clamp((p - 0.48) / 0.16, 0, 1);
-    const scene2Out = p < 0.9 ? 1 : clamp(1 - (p - 0.9) / 0.1, 0, 1);
-    const scene2Opacity = scene2In * scene2Out;
+    const cloudsOpacity = p < 0.08 ? lerp(0.7, 1, p / 0.08) : 1;
+    const scene1Opacity = p < 0.18 ? 1 : clamp(1 - (p - 0.18) / 0.22, 0, 1);
+    const portalOpacity = p < 0.36 ? 1 : clamp(1 - (p - 0.36) / 0.28, 0, 1);
+    const scene2In = clamp((p - 0.42) / 0.22, 0, 1);
+    const scene2Out = p < 0.88 ? 1 : clamp(1 - (p - 0.88) / 0.12, 0, 1);
+    const scene2Opacity = easeInOutCubic(scene2In) * scene2Out;
     return { portalOpacity, cloudsOpacity, scene1Opacity, scene2Opacity };
   }
 
   function motionProgress(p) {
-    if (p < 0.28) return easeInOut(p / 0.28) * 0.12;
-    if (p < 0.62) return 0.12 + easeInOut((p - 0.28) / 0.34) * 0.76;
-    return 0.88 + easeInOut((p - 0.62) / 0.38) * 0.12;
+    if (p < 0.3) return easeInOutCubic(p / 0.3) * 0.1;
+    if (p < 0.68) return 0.1 + easeInOutCubic((p - 0.3) / 0.38) * 0.78;
+    return 0.88 + easeInOutCubic((p - 0.68) / 0.32) * 0.12;
   }
 
   const root = document.getElementById('wonder-experience');
@@ -97,7 +102,7 @@
         '" alt="" loading="lazy" decoding="async" />';
     } else {
       el.innerHTML =
-        '<video class="wonder-hero-video-media" muted loop playsinline preload="none" data-src="' +
+        '<video class="wonder-hero-video-media" muted loop playsinline preload="auto" data-src="' +
         src +
         '"></video>';
     }
@@ -126,6 +131,7 @@
     });
     container.querySelectorAll('video.wonder-hero-video-media').forEach(function (video) {
       if (!video.dataset.src) return;
+      video.preload = 'auto';
       video.src = video.dataset.src;
       video.load();
       const playPromise = video.play();
@@ -190,8 +196,8 @@
 
         const isImage = /\.webp($|\?)/i.test(src) || /\.(png|jpe?g|gif)($|\?)/i.test(src);
         const mediaHtml = isImage
-          ? '<img class="fbs-look-media" src="' + src + '" alt="" loading="lazy" decoding="async" />'
-          : '<video class="fbs-look-media" muted loop playsinline preload="none" data-src="' +
+          ? '<img class="fbs-look-media" src="' + src + '" alt="" loading="eager" decoding="async" fetchpriority="low" />'
+          : '<video class="fbs-look-media" muted loop playsinline preload="auto" data-src="' +
             src +
             '"></video>';
 
@@ -207,16 +213,97 @@
     }
   }
 
+  function markMediaReady(media) {
+    media.classList.add('is-ready');
+  }
+
+  function bindVideoReady(video) {
+    if (video.dataset.readyBound) return;
+    video.dataset.readyBound = '1';
+    if (video.readyState >= 2) {
+      markMediaReady(video);
+      return;
+    }
+    video.addEventListener('loadeddata', function () {
+      markMediaReady(video);
+    }, { once: true });
+  }
+
+  function attachVideoSrc(video) {
+    if (!video || video.getAttribute('src') || !video.dataset.src) return false;
+    video.preload = 'auto';
+    video.src = video.dataset.src;
+    video.load();
+    bindVideoReady(video);
+    return true;
+  }
+
+  function playVideoSafe(video) {
+    const playPromise = video.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(function () {});
+    }
+  }
+
+  // After hero is up, warm every portfolio video in small batches so cards are ready on scroll
+  function warmPortfolioMedia() {
+    if (!portfolioGrid) return;
+
+    portfolioGrid.querySelectorAll('img.fbs-look-media').forEach(function (img) {
+      markMediaReady(img);
+      if (img.decode) {
+        img.decode().catch(function () {});
+      }
+    });
+
+    const videos = Array.prototype.slice.call(
+      portfolioGrid.querySelectorAll('video.fbs-look-media')
+    );
+    if (!videos.length) return;
+
+    var index = 0;
+    var batchSize = 2;
+
+    function loadNextBatch() {
+      var end = Math.min(index + batchSize, videos.length);
+      for (; index < end; index++) {
+        attachVideoSrc(videos[index]);
+      }
+      if (index < videos.length) {
+        setTimeout(loadNextBatch, 160);
+      }
+    }
+
+    loadNextBatch();
+  }
+
+  function scheduleWarmPortfolio() {
+    var start = function () {
+      warmPortfolioMedia();
+    };
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(start, { timeout: 1200 });
+    } else {
+      setTimeout(start, 200);
+    }
+  }
+
   function activateRowMedia(row) {
     row.querySelectorAll('video.fbs-look-media').forEach(function (video) {
-      if (!video.getAttribute('src') && video.dataset.src) {
-        video.src = video.dataset.src;
-        video.load();
+      attachVideoSrc(video);
+      bindVideoReady(video);
+
+      if (video.readyState >= 2) {
+        playVideoSafe(video);
+        return;
       }
-      const playPromise = video.play();
-      if (playPromise && typeof playPromise.catch === 'function') {
-        playPromise.catch(function () {});
-      }
+
+      video.addEventListener('loadeddata', function () {
+        playVideoSafe(video);
+      }, { once: true });
+
+      // Attempt immediately in case enough data is already buffered
+      playVideoSafe(video);
     });
   }
 
@@ -250,7 +337,8 @@
           }
         });
       },
-      { root: null, rootMargin: '120px 0px', threshold: 0.12 }
+      // Warm earlier so playback starts before the row is fully on screen
+      { root: null, rootMargin: '55% 0px', threshold: 0.01 }
     );
 
     rows.forEach(function (row) {
@@ -318,8 +406,11 @@
     applyScene1UIState();
   }, 480);
 
-  // Mount hero videos after first paint / curtain open — avoids load fight
-  setTimeout(mountHeroVideos, 650);
+  // Mount hero videos after first paint / curtain open — then warm portfolio in bg
+  setTimeout(function () {
+    mountHeroVideos();
+    scheduleWarmPortfolio();
+  }, 650);
 
   setTimeout(function () {
     entranceDone = true;
@@ -336,14 +427,18 @@
     var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduceMotion || typeof Lenis === 'undefined') return null;
 
+    var isCoarse = window.matchMedia('(pointer: coarse)').matches;
+
     lenis = new Lenis({
-      duration: 1.05,
+      // Lerp-based wheel = creamier inertia than duration/easing alone
+      lerp: isCoarse ? 0.12 : 0.075,
+      smoothWheel: true,
+      syncTouch: false,
+      touchMultiplier: isCoarse ? 1.35 : 1.15,
+      wheelMultiplier: isCoarse ? 0.95 : 0.85,
       easing: function (t) {
         return Math.min(1, 1.001 - Math.pow(2, -10 * t));
       },
-      smoothWheel: true,
-      touchMultiplier: 1.2,
-      wheelMultiplier: 1,
     });
 
     lenis.on('scroll', onScroll);
@@ -353,12 +448,12 @@
   function rafLoop(time) {
     if (lenis) lenis.raf(time);
 
-    // Snappier follow — less “stuck” lag behind the wheel
-    scrollProgressValue = lerp(scrollProgressValue, scrollProgressTarget, 0.14);
+    // Lenis already smooths scroll — follow tightly so layers don't feel mushy
+    scrollProgressValue = lerp(scrollProgressValue, scrollProgressTarget, 0.22);
 
     if (allowParallax) {
-      smoothX = lerp(smoothX, rawX, 0.12);
-      smoothY = lerp(smoothY, rawY, 0.12);
+      smoothX = lerp(smoothX, rawX, 0.08);
+      smoothY = lerp(smoothY, rawY, 0.08);
     } else {
       smoothX = 0;
       smoothY = 0;
