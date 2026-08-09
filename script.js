@@ -79,8 +79,10 @@
   curtainRightEl.querySelector('img').src = CURTAIN_RIGHT;
 
   const HERO_MEDIA = [
-    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a778a2b9994d35aa00d2bf1.mp4',
-    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a77885e9a9c7792ea98714a.mp4',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a781c7403343f290fe9f173.mp4',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a781b4d03343f290fe87fcb.mp4',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a781b4d9994d35aa06d42d7.mp4',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a781b4d5a64f2b567abbdbb.mp4',
   ];
 
   function buildHeroMediaCard(src, index) {
@@ -143,7 +145,7 @@
     { passive: true }
   );
 
-  // 4th row moved to top; then original rows 1–3; plus new 5th row
+  // Portfolio media — videos + stills in row pairs
   const LOOK_MEDIA = [
     'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a779bc99a9c7792eac72e90.webp',
     'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a778a2b9994d35aa00d2bf1.mp4',
@@ -155,15 +157,21 @@
     'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a77885e9a9c7792ea987135.mp4',
     'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a7796f403343f290fd66140.mp4',
     'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a7796f48880872019955c99.mp4',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a7824539a9c7792eae5cd2b.mp4',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a7824538880872019bb5fca.mp4',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a7824538880872019bb5fd3.mp4',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a78245303343f290ff853b8.mp4',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a7824555a64f2b567b9d307.webp',
+    'https://assets.cdn.filesafe.space/Z4Hh1Nzl43X5TFyPEJUN/media/6a7824538880872019bb5fce.webp',
   ];
 
   const LOOK_NAME_ORDER = [6, 7, 0, 1, 2, 3, 4, 5];
   const LOOK_NAMES = LOOK_MEDIA.map(function (_, i) {
-    if (i === LOOK_MEDIA.length - 2) return 'TEDx Kew website';
-    if (i === LOOK_MEDIA.length - 1) return 'Kaley Chu website';
+    if (i === 8) return 'Kaley Chu website';
+    if (i === 9) return 'TEDx Kew website';
     const nameIdx = LOOK_NAME_ORDER[i];
     return (ARC_CARDS[nameIdx] && ARC_CARDS[nameIdx].title) ||
-      'Template ' + String(i + 1).padStart(2, '0');
+      'Website preview ' + String(i + 1).padStart(2, '0');
   });
 
   // Portfolio cards — rows × 2 columns
@@ -190,9 +198,6 @@
         el.innerHTML =
           '<div class="fbs-look-media-wrap">' +
           mediaHtml +
-          '</div>' +
-          '<div class="fbs-look-name">' +
-          templateName +
           '</div>';
 
         row.appendChild(el);
