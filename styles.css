@@ -391,7 +391,8 @@ html.fbs-loading body {
 #wonder-experience {
   position: relative;
   z-index: 1;
-  height: 320vh;
+  /* Short runway — portal plays out fast, then snaps into portfolio */
+  height: 145vh;
   width: 100%;
   background: transparent;
 }
@@ -1428,14 +1429,15 @@ html.fbs-loading body {
 }
 
 .fbs-gradient-text {
+  /* Brand sweep — royal plum → berry → warm bronze, pulled from the cave crystals + gold CTAs */
   background-image: linear-gradient(
     110deg,
-    #f7cfe0 0%,
-    #e8b8f2 18%,
-    #ffe2b5 38%,
-    #d2b4ff 58%,
-    #ffc9d8 78%,
-    #f7e0c8 100%
+    #331a5c 0%,
+    #5b2478 22%,
+    #8a2f6d 45%,
+    #a8562e 68%,
+    #6b2452 85%,
+    #3a1a52 100%
   );
   background-size: 280% 100%;
   -webkit-background-clip: text;
@@ -1443,7 +1445,7 @@ html.fbs-loading body {
   color: transparent;
   -webkit-text-fill-color: transparent;
   animation: fbs-gradient-move 7s ease-in-out infinite;
-  filter: drop-shadow(0 2px 8px rgba(70, 35, 100, 0.28));
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.45)) drop-shadow(0 2px 12px rgba(255, 240, 255, 0.35));
 }
 
 .fbs-reaction {
@@ -1773,14 +1775,27 @@ img.fbs-look-media {
   font-size: clamp(34px, 5.4vw, 66px);
   line-height: 1.03;
   letter-spacing: -0.015em;
-  color: #8a4a2a;
+  background-image: linear-gradient(
+    110deg,
+    #331a5c 0%,
+    #5b2478 22%,
+    #8a2f6d 45%,
+    #a8562e 68%,
+    #6b2452 85%,
+    #3a1a52 100%
+  );
+  background-size: 280% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: fbs-gradient-move 7s ease-in-out infinite;
   text-wrap: balance;
 }
 
 .fbs-shift-title em {
   display: block;
   font-style: italic;
-  color: #8a3f6d;
 }
 
 .fbs-shift-note {

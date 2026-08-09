@@ -46,21 +46,21 @@
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   }
 
-  // Upsell pacing — longer fades so scene handoffs feel cinematic
+  // Faster portal → cloudy scene, then exit quickly toward portfolio
   function computeOpacities(p) {
-    const cloudsOpacity = p < 0.08 ? lerp(0.7, 1, p / 0.08) : 1;
-    const scene1Opacity = p < 0.18 ? 1 : clamp(1 - (p - 0.18) / 0.22, 0, 1);
-    const portalOpacity = p < 0.36 ? 1 : clamp(1 - (p - 0.36) / 0.28, 0, 1);
-    const scene2In = clamp((p - 0.42) / 0.22, 0, 1);
-    const scene2Out = p < 0.88 ? 1 : clamp(1 - (p - 0.88) / 0.12, 0, 1);
+    const cloudsOpacity = p < 0.06 ? lerp(0.7, 1, p / 0.06) : 1;
+    const scene1Opacity = p < 0.12 ? 1 : clamp(1 - (p - 0.12) / 0.16, 0, 1);
+    const portalOpacity = p < 0.26 ? 1 : clamp(1 - (p - 0.26) / 0.2, 0, 1);
+    const scene2In = clamp((p - 0.3) / 0.16, 0, 1);
+    const scene2Out = p < 0.78 ? 1 : clamp(1 - (p - 0.78) / 0.22, 0, 1);
     const scene2Opacity = easeInOutCubic(scene2In) * scene2Out;
     return { portalOpacity, cloudsOpacity, scene1Opacity, scene2Opacity };
   }
 
   function motionProgress(p) {
-    if (p < 0.3) return easeInOutCubic(p / 0.3) * 0.1;
-    if (p < 0.68) return 0.1 + easeInOutCubic((p - 0.3) / 0.38) * 0.78;
-    return 0.88 + easeInOutCubic((p - 0.68) / 0.32) * 0.12;
+    if (p < 0.22) return easeInOutCubic(p / 0.22) * 0.1;
+    if (p < 0.58) return 0.1 + easeInOutCubic((p - 0.22) / 0.36) * 0.78;
+    return 0.88 + easeInOutCubic((p - 0.58) / 0.42) * 0.12;
   }
 
   const root = document.getElementById('wonder-experience');
@@ -559,6 +559,72 @@
   initPortfolioReveal();
   initRowReveals();
   requestAnimationFrame(rafLoop);
+
+  // Once the cloudy "HOW 2028" beat is on, one scroll-down jumps to portfolio
+  var snapLock = false;
+  var touchStartY = 0;
+
+  function portfolioScrollTop() {
+    if (!portfolioEl) return 0;
+    return portfolioEl.getBoundingClientRect().top + (window.pageYOffset || window.scrollY || 0);
+  }
+
+  function snapToPortfolio() {
+    if (!portfolioEl || snapLock) return;
+    if (document.documentElement.classList.contains('fbs-loading')) return;
+    snapLock = true;
+    var top = portfolioScrollTop();
+    if (lenis) {
+      lenis.scrollTo(top, {
+        duration: 0.75,
+        easing: function (t) {
+          return Math.min(1, 1.001 - Math.pow(2, -10 * t));
+        },
+      });
+    } else {
+      window.scrollTo({ top: top, behavior: 'smooth' });
+    }
+    window.setTimeout(function () {
+      snapLock = false;
+    }, 850);
+  }
+
+  function shouldSnapToPortfolio() {
+    // Scene 2 is dominant from ~0.45 onward on the shortened track
+    return scrollProgressValue >= 0.45 && scrollProgressValue < 0.995;
+  }
+
+  window.addEventListener(
+    'wheel',
+    function (e) {
+      if (e.deltaY <= 0) return;
+      if (!shouldSnapToPortfolio()) return;
+      e.preventDefault();
+      snapToPortfolio();
+    },
+    { passive: false }
+  );
+
+  window.addEventListener(
+    'touchstart',
+    function (e) {
+      if (!e.touches || !e.touches.length) return;
+      touchStartY = e.touches[0].clientY;
+    },
+    { passive: true }
+  );
+
+  window.addEventListener(
+    'touchend',
+    function (e) {
+      if (!e.changedTouches || !e.changedTouches.length) return;
+      var dy = touchStartY - e.changedTouches[0].clientY;
+      if (dy > 36 && shouldSnapToPortfolio()) {
+        snapToPortfolio();
+      }
+    },
+    { passive: true }
+  );
 
   // Keep the page pinned at the top while the preloader is up
   if (isPreloading && lenis) {
