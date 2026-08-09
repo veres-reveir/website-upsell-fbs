@@ -395,31 +395,41 @@
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
-  // Entrance sequence
-  setTimeout(function () {
-    curtainsOpen = true;
-    applyCurtainState();
-  }, 80);
+  // Entrance sequence — held back until the preloader lifts
+  function startEntrance() {
+    setTimeout(function () {
+      curtainsOpen = true;
+      applyCurtainState();
+    }, 80);
 
-  setTimeout(function () {
-    uiVisible = true;
-    applyScene1UIState();
-  }, 480);
+    setTimeout(function () {
+      uiVisible = true;
+      applyScene1UIState();
+    }, 480);
 
-  // Mount hero videos after first paint / curtain open — then warm portfolio in bg
+    setTimeout(function () {
+      entranceDone = true;
+      curtainLeftEl.style.transition = 'none';
+      curtainRightEl.style.transition = 'none';
+    }, 1800);
+  }
+
+  // Media warms during the preloader so cards are ready the moment it clears
   setTimeout(function () {
     mountHeroVideos();
     scheduleWarmPortfolio();
-  }, 650);
-
-  setTimeout(function () {
-    entranceDone = true;
-    curtainLeftEl.style.transition = 'none';
-    curtainRightEl.style.transition = 'none';
-  }, 1800);
+  }, 120);
 
   // Initial curtain closed state
   applyCurtainState();
+
+  var isPreloading = document.documentElement.classList.contains('fbs-loading');
+
+  if (isPreloading) {
+    window.addEventListener('fbs:ready', startEntrance, { once: true });
+  } else {
+    startEntrance();
+  }
 
   var lenis = null;
 
@@ -549,4 +559,16 @@
   initPortfolioReveal();
   initRowReveals();
   requestAnimationFrame(rafLoop);
+
+  // Keep the page pinned at the top while the preloader is up
+  if (isPreloading && lenis) {
+    lenis.stop();
+    window.addEventListener(
+      'fbs:ready',
+      function () {
+        lenis.start();
+      },
+      { once: true }
+    );
+  }
 })();

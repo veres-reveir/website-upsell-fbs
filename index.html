@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="fbs-loading">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -24,8 +24,28 @@
   <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital,wght@0,400;1,400&family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <noscript>
+    <style>
+      .fbs-preloader { display: none !important; }
+      html.fbs-loading { overflow: auto !important; }
+    </style>
+  </noscript>
 </head>
 <body>
+  <div class="fbs-preloader" id="fbs-preloader" role="status" aria-live="polite" aria-label="Loading Future Business Summit">
+    <div class="fbs-preloader-inner">
+      <span class="fbs-loader" aria-hidden="true">
+        <span class="fbs-loader-box"></span>
+        <span class="fbs-loader-box fbs-loader-box-delay"></span>
+      </span>
+
+      <p class="fbs-preloader-line fbs-preloader-line-a">FUTURE</p>
+      <p class="fbs-preloader-line fbs-preloader-line-b">BUSINESS SUMMIT</p>
+    </div>
+
+    <div class="fbs-preloader-progress" aria-hidden="true"><span id="fbs-preloader-bar"></span></div>
+  </div>
+
   <section class="ticket-banner" aria-label="Gold ticket confirmation">
     <p class="ticket-banner-text">YOUR FREE GOLD TICKET IS ALMOST CONFIRMED!!!!</p>
   </section>
@@ -207,6 +227,7 @@
     </section>
   </main>
 
+  <script src="preloader.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js" defer></script>
   <script src="script.js" defer></script>
   <script src="cursor-follower.js" defer></script>
