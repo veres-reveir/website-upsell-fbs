@@ -391,8 +391,8 @@ html.fbs-loading body {
 #wonder-experience {
   position: relative;
   z-index: 1;
-  /* Short runway — portal plays out fast, then snaps into portfolio */
-  height: 145vh;
+  /* Longer runway — slower portal → cloudy → portfolio scroll */
+  height: 280vh;
   width: 100%;
   background: transparent;
 }
@@ -1281,19 +1281,14 @@ html.fbs-loading body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   pointer-events: none;
 }
 
 .wonder-s2-header {
-  margin-top: 12vh;
+  margin-top: 0;
   text-align: center;
   padding: 0 20px;
-}
-
-@media (max-width: 767px) {
-  .wonder-s2-header {
-    margin-top: 8vh;
-  }
 }
 
 .wonder-s2-header h2 {
@@ -1384,6 +1379,8 @@ html.fbs-loading body {
   overflow: visible;
   background: transparent;
   min-height: 100vh;
+  /* Pull portfolio up into the end of the sticky portal beat */
+  margin-top: -12vh;
 }
 
 .fbs-portfolio-inner {
@@ -1391,9 +1388,9 @@ html.fbs-loading body {
   z-index: 1;
   max-width: 1320px;
   margin: 0 auto;
-  padding: 120px 32px 40px;
+  padding: 48px 32px 40px;
   opacity: 0;
-  transform: translateY(28px);
+  transform: translateY(16px);
   transition:
     opacity 1.35s cubic-bezier(0.22, 1, 0.36, 1),
     transform 1.35s cubic-bezier(0.22, 1, 0.36, 1);
@@ -2034,7 +2031,11 @@ img.fbs-look-media {
   }
 
   .fbs-portfolio-inner {
-    padding: 64px 16px 24px;
+    padding: 28px 16px 24px;
+  }
+
+  .fbs-portfolio {
+    margin-top: -8vh;
   }
 
   .fbs-portfolio-grid {
