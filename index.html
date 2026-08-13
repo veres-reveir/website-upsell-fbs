@@ -37,15 +37,6 @@
   'https://connect.facebook.net/en_US/fbevents.js');
   fbq('init', '295459603388735');
   fbq('track', 'PageView');
-  /* Upsell arrival = post-signup lead — once per session to avoid refresh inflation */
-  try {
-    if (!sessionStorage.getItem('fbs_meta_lead')) {
-      fbq('track', 'Lead', { content_name: 'FBS Upsell', content_category: 'upsell' });
-      sessionStorage.setItem('fbs_meta_lead', '1');
-    }
-  } catch (err) {
-    fbq('track', 'Lead', { content_name: 'FBS Upsell', content_category: 'upsell' });
-  }
   </script>
   <noscript><img height="1" width="1" style="display:none"
   src="https://www.facebook.com/tr?id=295459603388735&ev=PageView&noscript=1"

@@ -554,34 +554,10 @@
     io.observe(portfolioEl);
   }
 
-  function trackMeta(eventName, params) {
-    if (typeof window.fbq !== 'function') return;
-    window.fbq('track', eventName, params || {});
-  }
-
-  // Book-a-call CTAs → Schedule (secondary conversion after upsell Lead)
-  function initMetaCtaTracking() {
-    document.querySelectorAll('a.wonder-offer-btn').forEach(function (el) {
-      el.addEventListener(
-        'click',
-        function () {
-          trackMeta('Schedule', {
-            content_name: 'FBS Upsell Book Call',
-            content_category: 'upsell',
-            value: 2449,
-            currency: 'USD',
-          });
-        },
-        { capture: true }
-      );
-    });
-  }
-
   // Start immediately (defer script) — do not wait for full window load
   initSmoothScroll();
   initPortfolioReveal();
   initRowReveals();
-  initMetaCtaTracking();
   requestAnimationFrame(rafLoop);
 
   // Keep the page pinned at the top while the preloader is up
